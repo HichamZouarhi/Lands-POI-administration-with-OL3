@@ -1,0 +1,176 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Prototype 1 - Habous</title>
+<link rel="stylesheet" type="text/css" href="css/form.css"/>
+<link rel="stylesheet" type="text/css" href="css/styles.css"/>
+<link rel="stylesheet" type="text/css" href="css/ol.css"/>
+<link rel="stylesheet" type="text/css" href="css/ol3-popup.css"/>
+<link href='http://fonts.googleapis.com/css?family=Playfair+Display|Pontano+Sans' rel='stylesheet' type='text/css'>
+<script src="scripts/ol.js"></script>
+<script src="scripts/ol3-popup.js"></script>
+<script src="scripts/jquery-2.2.4.min.js"></script> 
+</head>
+<body>
+<div class="header-wrapper">
+    	<div class="header-content">
+        	<div class="logo">
+            	<h1>Mapping Engineering</h1>
+            </div>
+            
+            <div class="menu">
+            	<ul>
+                <li><a id="Draw_otf" href="#">Dessiner</a></li>
+                <li><a id="Draw_XY" href="#">Insérer X/Y</a></li>
+                <li><a id="Modify" href="#">Modifier</a></li>
+                <li><a href="#">Supprimer</a></li>
+		<li><a id="Open_search" href="#">Recherche</a></li>
+                </ul>
+            </div>
+        </div>
+		<div id="map" class="map"></div>
+		<div id="SearchDiv"  style="display:none;">
+			<form class="search-form-container">
+				<table>
+					<tr>
+						<td><div class="form-title">ID</div></td>
+						<td><input id="ID_Search" class="form-field" type="text" /></td>
+					</tr>
+					<tr>
+						<td><div class="form-title">ID Expropriation</div></td>
+						<td><input id="ID_Exp_Search"class="form-field" type="text" /></td>
+					</tr>
+					<tr>
+						<td><div class="form-title">Symbole</div></td>
+						<td><input id="Symbole_Search" class="form-field" type="text" /></td>
+					</tr>
+					<tr>
+						<td><div class="form-title">Nom</div></td>
+						<td><input id="Nom_Search" class="form-field" type="text" /></td>
+					</tr>
+					<tr>
+						<td><div class="form-title">Num_Foncier</div></td>
+						<td><input id="Num_Foncier_Search" class="form-field" type="text" /></td>
+					</tr>
+					<tr>
+						<td><div class="form-title">Région</div></td>
+						<td><input id="Region_Search" class="form-field" type="text" /></td>
+					</tr>
+					<tr>
+						<td><div class="form-title">Province</div></td>
+						<td><input id="Province_Search" class="form-field" type="text" /></td>
+					</tr>
+					<tr>
+						<td><div class="form-title">Commune</div></td>
+						<td><input id="Commune_Search" class="form-field" type="text" /></td>
+					</tr>
+					<tr>
+						<td><div class="form-title">Superficie</div></td>
+						<td><input id="Superficie_Search" class="form-field" type="text" /></td>
+					</tr>
+				</table>
+				<div class="submit-container">
+					<input id="Search" class="submit-button" type="submit" value="Rechercher" />
+				</div>
+			</form>
+		</div>
+		<div id="InsertDiv"  style="display:none;">
+			<form class="search-form-container">
+				<table>
+					<tr>
+						<td><div class="form-title">Géometrie</div></td>
+						<td><textarea id="Geometry" class="form-field" cols="30" rows="2"  name="firstname"></textarea></td>
+					</tr>
+					<tr>
+						<td><div class="form-title">ID Expropriation</div></td>
+						<td><input id="Microzone"class="form-field" type="text" name="firstname" /></td>
+					</tr>
+					<tr>
+						<td><div class="form-title">Symbole</div></td>
+						<td><input id="Arrondissement" class="form-field" type="text" name="firstname" /></td>
+					</tr>
+					<tr>
+						<td><div class="form-title">Nom</div></td>
+						<td><input id="Prefecture" class="form-field" type="text" name="firstname" /></td>
+					</tr>
+					<tr>
+						<td><div class="form-title">Num_Foncier</div></td>
+						<td><input id="Population" class="form-field" type="text" name="firstname" /></td>
+					</tr>
+					<tr>
+						<td><div class="form-title">Région</div></td>
+						<td><input id="Population" class="form-field" type="text" name="firstname" /></td>
+					</tr>
+					<tr>
+						<td><div class="form-title">Province</div></td>
+						<td><input id="Population" class="form-field" type="text" name="firstname" /></td>
+					</tr>
+					<tr>
+						<td><div class="form-title">Commune</div></td>
+						<td><input id="Population" class="form-field" type="text" name="firstname" /></td>
+					</tr>
+					<tr>
+						<td><div class="form-title">Superficie</div></td>
+						<td><input id="Superficie" class="form-field" type="text" name="firstname" /></td>
+					</tr>
+				</table>
+				<div class="submit-container">
+					<input id="Insert" class="submit-button" type="submit" value="Insérer" />
+				</div>
+			</form>
+		</div>
+	</div>
+<!--- header-wrapper div end -->
+<div class="clearing"></div>
+<div class="panel-wrapper">
+	<div class="panel-content">
+		<div class="panel marRight">
+			<div class="panel-icon">
+				<img src="images/Insert-icon-white-yellow.png"/>
+			</div>
+			<h1>Ajouter des biens</h1>
+			<p>L'ajout de biens se fait par 2 modules : Dessin à la volée ou Insertion des coordonnées sous format lon/lat ...</p>
+			<a class="more1" href="#">Plus d'info</a>
+            <div class="panel-bottom">
+			</div>
+			
+		</div>
+		<div class="panel marRight">
+		<div class="panel-icon">
+				<img src="images/Modify-icon-white-yellow.png"/>
+			</div>
+			<h1>Modifier les biens</h1>
+			<p>la modification des biens comprend 2 modules: modification de la géométrie et modification des attributs ...</p>
+			<a class="more1" href="#">plus d'info</a>
+            <div class="panel-bottom">
+			</div>
+		</div>
+		
+		<div class="panel">
+		<div class="panel-icon">
+				<img src="images/Search-icon-white-yellow.png"/>
+			</div>
+			<h1>Recherche des biens</h1>
+			<p>Cette application offre une recherche multicritère des biens des habous cartogriaphiés ... </p>
+			<a class="more1" href="#">plus d'info</a>
+            <div class="panel-bottom">
+			</div>
+		</div>
+		
+	</div>
+			
+</div>
+        
+<!--- footer-wrapper div end -->
+<div class="clearing"></div>
+<div class="footer-strip-wrapper">
+	<div class="footer-strip">
+    <p>Copyright (c) MHAI-DH. All rights reserved.<a class="footerlink" href="http://mapping.ma" >< www.mapping.ma ></a></p>
+    </div>
+</div>
+<script src="scripts/Map.js"></script>
+</body>
+</html>

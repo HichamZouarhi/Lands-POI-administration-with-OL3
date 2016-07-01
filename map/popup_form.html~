@@ -1,0 +1,53 @@
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Protoype 1 - popup form</title>
+		<link rel="stylesheet" href="css/popup-form.css" />
+	</head>
+	<body>
+
+		<form class="search-form-container">
+			<table>
+				<tr>
+					<td><div class="form-title">ID</div></td>
+					<td><input id="ID" class="form-field" type="text" name="firstname" /></td>
+				</tr>
+				<tr>
+					<td><div class="form-title">ID Expropriation</div></td>
+					<td><input id="Microzone"class="form-field" type="text" name="firstname" /></td>
+				</tr>
+				<tr>
+					<td><div class="form-title">Symbole</div></td>
+					<td><input id="Arrondissement" class="form-field" type="text" name="firstname" /></td>
+				</tr>
+				<tr>
+					<td><div class="form-title">Nom</div></td>
+					<td><input id="Prefecture" class="form-field" type="text" name="firstname" /></td>
+				</tr>
+				<tr>
+					<td><div class="form-title">Num_Foncier</div></td>
+					<td><input id="Population" class="form-field" type="text" name="firstname" /></td>
+				</tr>
+				<tr>
+					<td><div class="form-title">Région</div></td>
+					<td><input id="Population" class="form-field" type="text" name="firstname" /></td>
+				</tr>
+				<tr>
+					<td><div class="form-title">Province</div></td>
+					<td><input id="Population" class="form-field" type="text" name="firstname" /></td>
+				</tr>
+				<tr>
+					<td><div class="form-title">Commune</div></td>
+					<td><input id="Population" class="form-field" type="text" name="firstname" /></td>
+				</tr>
+				<tr>
+					<td><div class="form-title">Superficie</div></td>
+					<td><input id="Superficie" class="form-field" type="text" name="firstname" /></td>
+				</tr>
+			</table>
+			<div class="submit-container">
+				<input class="submit-button" type="submit" value="Save" />
+			</div>
+		</form>
+	</body>
+</html>
