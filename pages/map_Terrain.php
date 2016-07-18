@@ -9,7 +9,7 @@
 	<meta name="description" content="">
 	<meta name="author" content="">
 
-	<title>Prototype - Habous - Map</title>
+	<title>Prototype - Habous - Map Terrains</title>
 
 	<!-- Bootstrap Core CSS -->
 	<link href="../bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -17,17 +17,17 @@
 	<!-- MetisMenu CSS -->
 	<link href="../bower_components/metisMenu/dist/metisMenu.min.css" rel="stylesheet">
 
-	<!-- Timeline CSS -->
-	<link href="../dist/css/timeline.css" rel="stylesheet">
+	<!-- DataTables CSS -->
+	<link href="../bower_components/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.css" rel="stylesheet">
 
 	<!-- Custom CSS -->
 	<link href="../dist/css/sb-admin-2.css" rel="stylesheet">
 
-	<!-- Morris Charts CSS -->
-	<link href="../bower_components/morrisjs/morris.css" rel="stylesheet">
 
 	<!-- Custom Fonts -->
 	<link href="../bower_components/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+	<!-- OL3 CSS -->
 	<link href="../dist/css/ol.css" rel="stylesheet" type="text/css">
 	<link href="../Maps/ol3-popup.css" rel="stylesheet" type="text/css">
 	<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
@@ -42,7 +42,7 @@
 <body>
 
 	<div id="wrapper">
-		
+		<?php session_start();?>
 		<!-- Navigation -->
 		<nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
 			<div class="navbar-header">
@@ -62,53 +62,74 @@
 						<i class="fa fa-bell fa-fw"></i>  <i class="fa fa-caret-down"></i>
 					</a>
 					<ul class="dropdown-menu dropdown-alerts">
+						<?php 
+							$conn=pg_connect("host=localhost port=5432 dbname=MHAI_DH user=postgres password=P0stgres");
+							if (!$conn){
+								die('Error: Could not connect: ' . pg_last_error());
+							}
+							$result = pg_query($conn, "SELECT table_op, description, to_char(time, 'HH12:MI AM') as time_log from operation");
+							if (!$result) {
+								die("An error occurred." . pg_last_error());
+							}
+							$i = 0;
+							while ($row = pg_fetch_row($result)){
+								$description=pg_fetch_result($result,$i,'description');
+								$time=pg_fetch_result($result,$i,'time_log');
+								$table_op=pg_fetch_result($result,$i,'table_op');
+								$i = $i + 1;
+								if($table_op=="expropriation"){
+									echo '<li>'
+										.'<a href="#">'
+											.'<div>'
+												.'<i class="fa fa-folder-open fa-fw"></i> '.$description
+												.'<span class="pull-right text-muted small">'.$time.'</em>'
+												.'</span>'
+											.'</div>'
+										.'</a>'
+										.'</li>'
+									.'<li class="divider"></li>';
+								}
+								if($table_op=="terrain"){
+									echo '<li>'
+										.'<a href="#">'
+											.'<div>'
+												.'<i class="fa fa-map-marker fa-fw"></i> '.$description
+												.'<span class="pull-right text-muted small">'.$time.'</em>'
+												.'</span>'
+											.'</div>'
+										.'</a>'
+										.'</li>'
+									.'<li class="divider"></li>';
+								}
+								if($table_op=="ribaa"){
+									echo '<li>'
+										.'<a href="#">'
+											.'<div>'
+												.'<i class="fa fa-key fa-fw"></i> '.$description
+												.'<span class="pull-right text-muted small">'.$time.'</em>'
+												.'</span>'
+											.'</div>'
+										.'</a>'
+										.'</li>'
+									.'<li class="divider"></li>';
+								}
+								if($table_op=="exploitation_terrain" || $table_op=="exploitation_ribaa"){
+									echo '<li>'
+										.'<a href="#">'
+											.'<div>'
+												.'<i class="fa fa-file-text fa-fw"></i> '.$description
+												.'<span class="pull-right text-muted small">'.$time.'</em>'
+												.'</span>'
+											.'</div>'
+										.'</a>'
+										.'</li>'
+									.'<li class="divider"></li>';
+								}
+							}
+							pg_close($conn);
+							?>
 						<li>
-							<a href="#">
-								<div>
-									<i class="fa fa-comment fa-fw"></i> New Comment
-									<span class="pull-right text-muted small">4 minutes ago</span>
-								</div>
-							</a>
-						</li>
-						<li class="divider"></li>
-						<li>
-							<a href="#">
-								<div>
-									<i class="fa fa-twitter fa-fw"></i> 3 New Followers
-									<span class="pull-right text-muted small">12 minutes ago</span>
-								</div>
-							</a>
-						</li>
-						<li class="divider"></li>
-						<li>
-							<a href="#">
-								<div>
-									<i class="fa fa-envelope fa-fw"></i> Message Sent
-									<span class="pull-right text-muted small">4 minutes ago</span>
-								</div>
-							</a>
-						</li>
-						<li class="divider"></li>
-						<li>
-							<a href="#">
-								<div>
-									<i class="fa fa-tasks fa-fw"></i> New Task
-									<span class="pull-right text-muted small">4 minutes ago</span>
-								</div>
-							</a>
-						</li>
-						<li class="divider"></li>
-						<li>
-							<a href="#">
-								<div>
-									<i class="fa fa-upload fa-fw"></i> Server Rebooted
-									<span class="pull-right text-muted small">4 minutes ago</span>
-								</div>
-							</a>
-						</li>
-						<li class="divider"></li>
-						<li>
-							<a class="text-center" href="#">
+							<a class="text-center" href="#" data-toggle="modal" data-target="#Log_Modal">
 								<strong>See All Alerts</strong>
 								<i class="fa fa-angle-right"></i>
 							</a>
@@ -122,12 +143,12 @@
 						<i class="fa fa-user fa-fw"></i>  <i class="fa fa-caret-down"></i>
 					</a>
 					<ul class="dropdown-menu dropdown-user">
-						<li><a href="#"><i class="fa fa-user fa-fw"></i> User Profile</a>
+						<li><a href="#"><i class="fa fa-user fa-fw"></i> <?php echo $_SESSION['userName']; ?></a>
 						</li>
-						<li><a href="#"><i class="fa fa-gear fa-fw"></i> Settings</a>
+						<li><a href="#"><i class="fa fa-gear fa-fw"></i> <?php echo $_SESSION['userFunction']; ?></a>
 						</li>
 						<li class="divider"></li>
-						<li><a href="login.html"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
+						<li><a id="logout"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
 						</li>
 					</ul>
 					<!-- /.dropdown-user -->
@@ -188,10 +209,10 @@
 							<a href="#"><i class="fa fa-location-arrow fa-fw"></i> La carte<span class="fa arrow"></span></a>
 							<ul class="nav nav-second-level">
 								<li>
-									<a href="map_Terrain.html"><i class="fa fa-map-marker fa-fw"></i> Terrains</a>
+									<a href="map_Terrain.php"><i class="fa fa-map-marker fa-fw"></i> Terrains</a>
 								</li>
 								<li>
-									<a href="map_Ribaa.html"><i class="fa fa-key fa-fw"></i> Ribaa</a>
+									<a href="map_Ribaa.php"><i class="fa fa-key fa-fw"></i> Ribaa</a>
 								</li>
 							</ul>
 							<!-- /.nav-second-level -->
@@ -202,7 +223,7 @@
 			</div>
 			<!-- /.navbar-static-side -->
 		</nav>
-
+		
 		<div id="page-wrapper">
 			<div class="row">
 				<div class="col-lg-12">
@@ -427,12 +448,12 @@
 							<div class="col-lg-6">
 								<form role="form">
 									<div class="form-group">
-										<label>Identifiant de l'expropriation</label>
-										<input class="form-control" id="ID_Exprop_Search" type="text">
-									</div>
-									<div class="form-group">
 										<label>Numéro Foncier</label>
 										<input class="form-control" id="Num_Foncier_Search" type="text">
+									</div>
+									<div class="form-group">
+										<label>Identifiant de l'expropriation</label>
+										<input class="form-control" id="ID_Exprop_Search" type="text">
 									</div>
 									<div class="form-group">
 										<label>Commune</label>
@@ -455,11 +476,103 @@
 			</div>
 		<!-- /.modal-dialog -->
 		</div>
+
+		<div class="modal fade" id="Log_Modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+						<h4 class="modal-title" id="myModalLabel">Opérations récentes</h4>
+					</div>
+					<div class="modal-body">
+						<div class="dataTable_wrapper">
+							<?php 
+								$conn=pg_connect("host=localhost port=5432 dbname=MHAI_DH user=postgres password=P0stgres");
+								if (!$conn){
+									die('Error: Could not connect: ' . pg_last_error());
+								}
+								$result = pg_query($conn, "SELECT a.id, a.description, to_char(time, 'YYYY-MM-DD HH12:MM AM') as time_log, a.entite_id, b.nom, b.prenom from operation as a, utilisateur as b where a.utilisateur_id=b.id");
+								if (!$result) {
+									die("An error occurred." . pg_last_error());
+								}
+								$i = 0;
+							?>
+							<table class="table table-striped table-bordered table-hover" style="width:100%;" id="dataTable_logs">
+								<thead>
+									<tr>
+										<th>Identifiant</th>
+										<th>Description</th>
+										<th>Temps</th>
+										<th>Entité</th>
+										<th>Nom</th>
+										<th>Prénom</th>
+									</tr>
+								</thead>
+								<tbody>
+									<?php
+										$i = 0;
+										while ($row = pg_fetch_row($result)){
+											echo '<tr class="gradeA">';
+											$count = count($row);
+											$y = 0;
+											while ($y < $count){
+												$c_row = current($row);
+												echo '<td>' . $c_row . '</td>';
+												next($row);
+												$y = $y + 1;
+											}
+											echo '</tr>';
+											$i = $i + 1;
+										}
+										pg_free_result($result);
+										pg_close($conn);
+									?>
+								</tbody>
+							</table>
+						</div>
+						<!-- /.table-responsive -->
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+				<!-- /.modal-content -->
+			</div>
+		<!-- /.modal-dialog -->
+		</div>
 	</div>
 	<!-- /#wrapper -->
 
 	<!-- jQuery -->
 	<script src="../bower_components/jquery/dist/jquery.min.js"></script>
+
+	<!-- DataTables JavaScript -->
+	<script src="../bower_components/datatables/media/js/jquery.dataTables.min.js"></script>
+	<script src="../bower_components/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.min.js"></script>
+
+	<script>
+		
+		$('#dataTable_logs').DataTable({
+			responsive: true,
+			"columnDefs": [
+				{
+					"targets": [ 0 ],
+					"visible": false
+				}
+			]
+		});
+		
+		$('#logout').click(function(){
+			$.ajax({
+				url: 'php_scripts/Logout.php',
+				type: 'POST',
+				success:function(response){
+					window.location="login.html";
+				}
+			});
+		});
+
+	</script>
 	<script src="../js/ol.js"></script>
 	<script src="../Maps/ol3-popup.js"></script>
 	<script src="../js/Map_Terrain.js"></script>

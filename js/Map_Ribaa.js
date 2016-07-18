@@ -1,14 +1,30 @@
 var basemap = new ol.layer.Tile({
-        source: new ol.source.OSM()
-      });
+		source: new ol.source.OSM()
+	  });
+
+
+
+var template="<div style='top: .5em; right: .5em; z-index: 20; opacity: 0.8;'' class='alert alert-success'>"
+						+"Lon: {x}</br>"
+						+"Lat: {y}</br>"
+					+"</div>"
 
 var map = new ol.Map({
+	controls: ol.control.defaults().extend([
+		new ol.control.MousePosition({
+			projection: 'EPSG:4326',
+			coordinateFormat: function(coord) {return ol.coordinate.format(coord, template, 4);},
+			//className: 'custom-mouse-position',
+			//target: $('#Position'),
+			undefinedHTML: '&nbsp;'
+		})
+	]),
 	layers: [basemap],
 	target: 'map',
 	view: new ol.View({
 		projection: "http://www.opengis.net/gml/srs/epsg.xml#4326",
-        center: [-7.5607, 33.3770],
-        zoom: 10
+		center: [-7.5607, 33.3770],
+		zoom: 10
 	})
 });
 
@@ -60,6 +76,11 @@ var ribaaLayer=new ol.layer.Vector({
 });
 
 map.addLayer(ribaaLayer);
+ribaaSource.once('change',function(e){
+	if (ribaaSource.getState() === 'ready') {
+		map.getView().fit(ribaaSource.getExtent(), map.getSize());
+	}
+});
 
 // Editing Features code --------------------------------------------------
 
@@ -95,23 +116,23 @@ var singleClickListener=function(evt) {
 	popup.hide();
 	popup.setOffset([0, 0]);
 	var feature = map.forEachFeatureAtPixel(evt.pixel, function(feature, layer) {
-        	return feature;
-    		});
+			return feature;
+			});
 	if (feature) {
-		selectedFeature=feature;        
+		selectedFeature=feature;		
 		//getting the center of the polygons to display the popup on its coordinates
 		var ext=feature.getGeometry().getExtent();
 		var center=ol.extent.getCenter(ext);
 		var props = feature.getProperties();
 		//var superficie=Math.round(Math.abs(sphere.geodesicArea(feature.getGeometry().getLinearRing(0).getCoordinates())));
 		var info =  "<i class='fa fa-key fa-fw'></i>"+props.id+"</br>"+props.description;
-        // Offset the popup so it points at the middle of the marker not the tip
+		// Offset the popup so it points at the middle of the marker not the tip
 		popup.setOffset([0, -22]);
 		popup.show(center,info);
 		/*map.setView( new ol.View({
 			projection: "http://www.opengis.net/gml/srs/epsg.xml#4326",
-        	center: [center[0] , center[1]+0.4],
-        	zoom: 10
+			center: [center[0] , center[1]+0.4],
+			zoom: 10
 			}));*/
 	}
 	
@@ -123,9 +144,9 @@ var key=map.on('singleclick', singleClickListener);
 var draw; // global so we can remove it later
 var formatwfs = new ol.format.WFS();// here we declare the format WFS to be used later on the transaction
 draw = new ol.interaction.Draw({
-       		features: features, // we set the newly drawn feature on the overlay declared previously
-       		type: /** @type {ol.geom.GeometryType} */ ('Point') // Type of the feature in our case it's polygon
-       		});
+	   		features: features, // we set the newly drawn feature on the overlay declared previously
+	   		type: /** @type {ol.geom.GeometryType} */ ('Point') // Type of the feature in our case it's polygon
+	   		});
 // when a new feature has been drawn...
 draw.on('drawend', function(event) {
 	//var formatwkt = new ol.format.WKT();
@@ -168,14 +189,14 @@ $('#Draw').click( function(){
 //we add the modify interaction to the selected feature
 var modify = new ol.interaction.Modify({
 	features: select.getFeatures(),
-        // the SHIFT key must be pressed to delete vertices, so
-        // that new vertices can be drawn at the same position
-        // of existing vertices
-        deleteCondition: function(event) {
-        	return ol.events.condition.shiftKeyOnly(event) &&
-              	ol.events.condition.singleClick(event);
-        	}
-      	});
+		// the SHIFT key must be pressed to delete vertices, so
+		// that new vertices can be drawn at the same position
+		// of existing vertices
+		deleteCondition: function(event) {
+			return ol.events.condition.shiftKeyOnly(event) &&
+			  	ol.events.condition.singleClick(event);
+			}
+	  	});
 
 $('#Modify_Attr').click( function(event){
 	var feature=select.getFeatures().item(0);
@@ -332,16 +353,176 @@ $('#Delete').click( function(){
 
 //Search features by ID starts here
 $('#Search').click( function(evt){
-	ribaaSource.forEachFeature(function(feature) {
-		if(feature.get('ID')==$('#ID_Search').val()){
-			select.getFeatures().clear();
-			select.getFeatures().push(feature);
-		}
+	select.getFeatures().clear();
+	ribaaSource.forEachFeature(function(feature){
+		feature.setStyle(new ol.style.Style({
+			fill: new ol.style.Fill({
+				color: 'rgba(255, 255, 255, 0.2)'
+			}),
+			stroke: new ol.style.Stroke({
+				color: '#737373',
+				width: 2
+			}),
+			image: new ol.style.Circle({
+				radius: 7,
+				fill: new ol.style.Fill({
+					color: '#ffcc33'
+				})
+			})
+		}));
 	});
-	var extent = select.getFeatures().item(0).getGeometry().getExtent();
-	features.forEach(function(feature){ ol.extent.extend(extent,feature.getGeometry().getExtent())});
-	map.getView().fit(extent, map.getSize());
-	$('#Search_Modal').modal('hide');
+	if($('#ID_Search').val()!=""){
+		ribaaSource.forEachFeature(function(feature) {
+			if(feature.get('id')==$('#ID_Search').val()){
+				select.getFeatures().push(feature);
+			}
+		});
+	}
+	else{
+		if($('#Num_Foncier_Search').val()!=""){
+			ribaaSource.forEachFeature(function(feature) {
+			if(feature.get('num_foncier')==$('#Num_Foncier_Search').val()){
+				select.getFeatures().push(feature);
+			}
+		});
+		}
+		else{
+			if($('#ID_Exprop_Search').val()!=""){
+				ribaaSource.forEachFeature(function(feature) {
+					if(feature.get('id_expropriation')==$('#ID_Exprop_Search').val()){
+						select.getFeatures().push(feature);
+					}
+				});
+			}
+			else{
+				if($('#Type_Search').val()!=""){
+					if(select.getFeatures().item(0)){
+						var searchFeatures= new ol.Collection();
+						select.getFeatures().forEach(function(feature) {
+							if(feature.get('type')==$('#Type_Search').val()){
+								searchFeatures.push(feature);
+							}
+						});
+						select.getFeatures().clear();
+						searchFeatures.forEach(function(feature){
+							select.getFeatures().push(feature);
+						});
+					}
+					else{
+						ribaaSource.forEachFeature(function(feature) {
+							if(feature.get('type')==$('#Type_Search').val()){
+								select.getFeatures().push(feature);
+							}
+						});
+					}
+				}
+				if($('#Superficie_Search').val()!=""){
+					if(select.getFeatures().item(0)){
+						var searchFeatures= new ol.Collection();
+						select.getFeatures().forEach(function(feature) {
+							if(feature.get('superficie')==$('#Superficie_Search').val()){
+								searchFeatures.push(feature);
+							}
+						});
+						select.getFeatures().clear();
+						searchFeatures.forEach(function(feature){
+							select.getFeatures().push(feature);
+						});
+					}
+					else{
+						ribaaSource.forEachFeature(function(feature) {
+							if(feature.get('superficie')==$('#Superficie_Search').val()){
+								select.getFeatures().push(feature);
+							}
+						});
+					}
+				}
+				if($('#Region_Search').val()!=""){
+					if(select.getFeatures().item(0)){
+						var searchFeatures=new ol.Collection();
+						select.getFeatures().forEach(function(feature) {
+							if(feature.get('region')==$('#Region_Search').val()){
+								searchFeatures.push(feature);
+							}
+						});
+						select.getFeatures().clear();
+						searchFeatures.forEach(function(feature){
+							select.getFeatures().push(feature);
+						});
+					}
+					else{
+						ribaaSource.forEachFeature(function(feature) {
+							if(feature.get('region')==$('#Region_Search').val()){
+								select.getFeatures().push(feature);
+							}
+						});
+					}
+				}
+				if($('#Province_Search').val()!=""){
+					if(select.getFeatures().item(0)){
+						var searchFeatures= new ol.Collection();
+						select.getFeatures().forEach(function(feature) {
+							if(feature.get('province')==$('#Province_Search').val()){
+								searchFeatures.push(feature);
+							}
+						});
+						select.getFeatures().clear();
+						searchFeatures.forEach(function(feature){
+							select.getFeatures().push(feature);
+						});
+					}
+					else{
+						ribaaSource.forEachFeature(function(feature) {
+							if(feature.get('province')==$('#Province_Search').val()){
+								select.getFeatures().push(feature);
+							}
+						});
+					}
+				}
+				if($('#Commune_Search').val()!=""){
+					if(select.getFeatures().item(0)){
+						var searchFeatures= new ol.Collection();
+						select.getFeatures().forEach(function(feature) {
+							if(feature.get('commune')==$('#Commune_Search').val()){
+								searchFeatures.push(feature);
+							}
+						});
+						select.getFeatures().clear();
+						searchFeatures.forEach(function(feature){
+							select.getFeatures().push(feature);
+						});
+					}
+					else{
+						ribaaSource.forEachFeature(function(feature) {
+							if(feature.get('commune')==$('#Commune_Search').val()){
+								select.getFeatures().push(feature);
+							}
+						});
+					}
+				}
+			}
+		}
+	}
+	if(select.getFeatures().item(0)){
+		select.getFeatures().forEach(function(feature){
+			feature.setStyle(new ol.style.Style({
+				image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
+					anchor: [0.5, 46],
+					anchorXUnits: 'fraction',
+					anchorYUnits: 'pixels',
+					src: '../images/marker-map.png'
+				}))
+			}))
+		});
+		var extent = select.getFeatures().item(0).getGeometry().getExtent();
+		select.getFeatures().forEach(function(feature){ ol.extent.extend(extent,feature.getGeometry().getExtent())});
+		map.getView().fit(extent, map.getSize());
+		console.log(select.getFeatures().getLength());
+		$('#Search_Modal').modal('hide');
+	}
+	else{
+		alert("Aucune ribaa ne répond aux critères de recherche saisis !");
+	}
 });
 //Search code ends here
 // Hover Interaction code starts here

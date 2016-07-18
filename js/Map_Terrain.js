@@ -2,7 +2,21 @@ var basemap = new ol.layer.Tile({
         source: new ol.source.OSM()
       });
 
+var template="<div style='top: .5em; right: .5em; z-index: 20; opacity: 0.8;'' class='alert alert-success'>"
+						+"Lon: {x}</br>"
+						+"Lat: {y}</br>"
+					+"</div>"
+
 var map = new ol.Map({
+	controls: ol.control.defaults().extend([
+		new ol.control.MousePosition({
+			projection: 'EPSG:4326',
+			coordinateFormat: function(coord) {return ol.coordinate.format(coord, template, 4);},
+			//className: 'custom-mouse-position',
+			//target: $('#Position'),
+			undefinedHTML: '&nbsp;'
+		})
+	]),
 	layers: [basemap],
 	target: 'map',
 	view: new ol.View({
@@ -60,6 +74,15 @@ var parcelLayer=new ol.layer.Vector({
 });
 
 map.addLayer(parcelLayer);
+parcelSource.once('change',function(e){
+    if (parcelSource.getState() === 'ready') {
+        map.getView().fit(parcelSource.getExtent(), map.getSize());
+    }
+});
+
+/*var extent = parcelSource.getFeatures()[0].getGeometry().getExtent();
+parcelSource.getFeatures().forEach(function(feature){ ol.extent.extend(extent,feature.getGeometry().getExtent())});
+map.getView().fit(extent, map.getSize());*/
 
 // Editing Features code --------------------------------------------------
 
@@ -104,7 +127,7 @@ var singleClickListener=function(evt) {
 		var center=ol.extent.getCenter(ext);
 		var props = feature.getProperties();
 		//var superficie=Math.round(Math.abs(sphere.geodesicArea(feature.getGeometry().getLinearRing(0).getCoordinates())));
-		var info =  props.id;
+		var info =  "<i class='fa fa-map-marker fa-fw'></i>"+props.id+"</br>"+props.description;;
         // Offset the popup so it points at the middle of the marker not the tip
 		popup.setOffset([0, -22]);
 		popup.show(center,info);
@@ -345,16 +368,134 @@ $('#Delete').click( function(){
 
 //Search features by ID starts here
 $('#Search').click( function(evt){
-	parcelSource.forEachFeature(function(feature) {
-		if(feature.get('ID')==$('#ID_Search').val()){
-			select.getFeatures().clear();
-			select.getFeatures().push(feature);
+	select.getFeatures().clear();
+	if($('#ID_Search').val()!=""){
+		parcelSource.forEachFeature(function(feature) {
+			if(feature.get('id')==$('#ID_Search').val()){
+				select.getFeatures().push(feature);
+			}
+		});
+	}
+	else{
+		if($('#Num_Foncier_Search').val()!=""){
+			parcelSource.forEachFeature(function(feature) {
+			if(feature.get('num_foncier')==$('#Num_Foncier_Search').val()){
+				select.getFeatures().push(feature);
+			}
+		});
 		}
-	});
-	var extent = select.getFeatures().item(0).getGeometry().getExtent();
-	features.forEach(function(feature){ ol.extent.extend(extent,feature.getGeometry().getExtent())});
-	map.getView().fit(extent, map.getSize());
-	$('#Search_Modal').modal('hide');
+		else{
+			if($('#ID_Exprop_Search').val()!=""){
+				parcelSource.forEachFeature(function(feature) {
+					if(feature.get('id_expropriation')==$('#ID_Exprop_Search').val()){
+						select.getFeatures().push(feature);
+					}
+				});
+			}
+			else{
+				if($('#Nom_Search').val()!=""){
+					parcelSource.forEachFeature(function(feature) {
+						if(feature.get('nom')==$('#Nom_Search').val()){
+							select.getFeatures().push(feature);
+						}
+					});
+				}
+				if($('#Symbole_Search').val()!=""){
+					if(select.getFeatures().item(0)){
+						var searchFeatures= new ol.Collection();
+						select.getFeatures().forEach(function(feature) {
+							if(feature.get('symbole')==$('#Symbole_Search').val()){
+								searchFeatures.push(feature);
+							}
+						});
+						select.getFeatures().clear();
+						searchFeatures.forEach(function(feature){
+							select.getFeatures().push(feature);
+						});
+					}
+					else{
+						parcelSource.forEachFeature(function(feature) {
+							if(feature.get('symbole')==$('#Symbole_Search').val()){
+								select.getFeatures().push(feature);
+							}
+						});
+					}
+				}
+				if($('#Region_Search').val()!=""){
+					if(select.getFeatures().item(0)){
+						var searchFeatures=new ol.Collection();
+						select.getFeatures().forEach(function(feature) {
+							if(feature.get('region')==$('#Region_Search').val()){
+								searchFeatures.push(feature);
+							}
+						});
+						select.getFeatures().clear();
+						searchFeatures.forEach(function(feature){
+							select.getFeatures().push(feature);
+						});
+					}
+					else{
+						parcelSource.forEachFeature(function(feature) {
+							if(feature.get('region')==$('#Region_Search').val()){
+								select.getFeatures().push(feature);
+							}
+						});
+					}
+				}
+				if($('#Province_Search').val()!=""){
+					if(select.getFeatures().item(0)){
+						var searchFeatures= new ol.Collection();
+						select.getFeatures().forEach(function(feature) {
+							if(feature.get('province')==$('#Province_Search').val()){
+								searchFeatures.push(feature);
+							}
+						});
+						select.getFeatures().clear();
+						searchFeatures.forEach(function(feature){
+							select.getFeatures().push(feature);
+						});
+					}
+					else{
+						parcelSource.forEachFeature(function(feature) {
+							if(feature.get('province')==$('#Province_Search').val()){
+								select.getFeatures().push(feature);
+							}
+						});
+					}
+				}
+				if($('#Commune_Search').val()!=""){
+					if(select.getFeatures().item(0)){
+						var searchFeatures= new ol.Collection();
+						select.getFeatures().forEach(function(feature) {
+							if(feature.get('commune')==$('#Commune_Search').val()){
+								searchFeatures.push(feature);
+							}
+						});
+						select.getFeatures().clear();
+						searchFeatures.forEach(function(feature){
+							select.getFeatures().push(feature);
+						});
+					}
+					else{
+						parcelSource.forEachFeature(function(feature) {
+							if(feature.get('commune')==$('#Commune_Search').val()){
+								select.getFeatures().push(feature);
+							}
+						});
+					}
+				}
+			}
+		}
+	}
+	if(select.getFeatures().item(0)){
+		var extent = select.getFeatures().item(0).getGeometry().getExtent();
+		select.getFeatures().forEach(function(feature){ ol.extent.extend(extent,feature.getGeometry().getExtent())});
+		map.getView().fit(extent, map.getSize());
+		$('#Search_Modal').modal('hide');
+	}
+	else{
+		alert("Aucun terrain ne répond aux critères de recherche saisis !");
+	}
 });
 //Search code ends here
 // Hover Interaction code starts here

@@ -53,11 +53,6 @@
 								<div class="form-group">
 									<input class="form-control" placeholder="Password" id="password" type="password" value="">
 								</div>
-								<div class="checkbox">
-									<label>
-										<input name="remember" type="checkbox" value="Remember Me">Garder ma session ouverte
-									</label>
-								</div>
 								<!-- Change this to a button or input when using this as a form -->
 								<a href="#" id="login" class="btn btn-lg btn-success btn-block">S'authentifier</a>
 							</fieldset>
@@ -70,7 +65,6 @@
 	
 	<script>
 	$("#login").click(function(e){
-		console.log($('#username').val()+" "+$('#password').val());
 		$.ajax({
 			url: 'php_scripts/Authenticate.php',
 			type: 'POST',
@@ -79,12 +73,12 @@
 				password: $('#password').val()
 			},
 			success:function(response){
-				//console.log(response);
-				if(response=="error"){
-					alert("le nom d'utilisateur ou mot de passe est incorrecte !");
+				//alert(response);
+				if(response=="success"){
+					window.location="index.php";
 				}
 				else{
-					window.location="index.php";
+					alert("le nom d'utilisateur ou mot de passe est incorrecte !");
 				}
 			}
 		});
